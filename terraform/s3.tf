@@ -1,0 +1,82 @@
+# ===================================
+# S3 BUCKET - GEOSPATIAL CACHE
+# ===================================
+
+resource "aws_s3_bucket" "geospatial_cache" {
+  bucket = "${var.project_name}-geospatial-cache"
+
+  tags = {
+    Name = "${var.project_name}-geospatial-cache"
+    Type = "geospatial-data"
+  }
+}
+
+# ===================================
+# S3 BUCKET CONFIGURATION
+# ===================================
+
+resource "aws_s3_bucket_versioning" "geospatial_cache" {
+  bucket = aws_s3_bucket.geospatial_cache.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "geospatial_cache" {
+  bucket = aws_s3_bucket.geospatial_cache.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "geospatial_cache" {
+  bucket = aws_s3_bucket.geospatial_cache.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# ===================================
+# LIFECYCLE CONFIGURATION
+# ===================================
+
+resource "aws_s3_bucket_lifecycle_configuration" "geospatial_cache" {
+  bucket = aws_s3_bucket.geospatial_cache.id
+
+  rule {
+    id     = "cache_cleanup"
+    status = "Enabled"
+
+    # Delete incomplete multipart uploads
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+
+    # Transition to IA after 30 days
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    # Transition to Glacier after 90 days
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+
+    # Delete after 365 days
+    expiration {
+      days = 365
+    }
+
+    # Clean up old versions
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+}
