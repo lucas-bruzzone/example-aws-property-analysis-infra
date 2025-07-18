@@ -18,11 +18,12 @@ resource "aws_sqs_queue" "property_analysis_dlq" {
 # ===================================
 
 resource "aws_sqs_queue" "property_analysis_delay" {
-  name                      = "${var.project_name}-property-analysis-delay"
-  delay_seconds             = 120 # 2 minutes delay
-  max_message_size          = 262144
-  message_retention_seconds = 1209600 # 14 days
-  receive_wait_time_seconds = 10      # Long polling
+  name                       = "${var.project_name}-property-analysis-delay"
+  delay_seconds              = 120 # 2 minutes delay
+  max_message_size           = 262144
+  message_retention_seconds  = 1209600 # 14 days
+  receive_wait_time_seconds  = 10      # Long polling
+  visibility_timeout_seconds = 1800    # 30 minutes (6x lambda timeout)
 
   # Dead letter queue configuration
   redrive_policy = jsonencode({
