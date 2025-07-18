@@ -52,6 +52,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "geospatial_cache" {
     id     = "cache_cleanup"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     # Delete incomplete multipart uploads
     abort_incomplete_multipart_upload {
       days_after_initiation = 1

@@ -43,11 +43,6 @@ resource "aws_cloudwatch_event_target" "property_analysis_sqs" {
   event_bus_name = aws_cloudwatch_event_bus.property_analysis.name
   target_id      = "PropertyAnalysisSQSTarget"
   arn            = aws_sqs_queue.property_analysis_delay.arn
-
-  # Delay de 2 minutos
-  sqs_parameters {
-    message_group_id = "property-analysis"
-  }
 }
 
 # ===================================
