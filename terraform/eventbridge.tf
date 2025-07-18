@@ -50,7 +50,7 @@ resource "aws_cloudwatch_event_target" "property_analysis_sqs" {
 # ===================================
 
 resource "aws_cloudwatch_event_archive" "property_analysis" {
-  name             = "${var.project_name}-property-analysis-archive"
+  name             = "${var.project_name}-archive"
   event_source_arn = aws_cloudwatch_event_bus.property_analysis.arn
   description      = "Archive for property analysis events"
   retention_days   = 30
